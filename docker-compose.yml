@@ -1,0 +1,62 @@
+version: '2'
+services:
+      
+  php53:
+    image: nawhath/apache-php53
+    container_name: php53
+    restart: always
+    volumes:
+      - ./php53/:/var/www/
+    expose:
+      - '80'
+    networks:
+       - webinternal
+     
+  php56:
+    image: bylexus/apache-php56
+    container_name: php56
+    restart: always
+    volumes:
+      - ./php56/:/var/www/
+    expose:
+      - '80'
+    networks: 
+      - webinternal
+   
+  nginx-proxy:
+    image: nawhath/nginx:1.2
+    container_name: nginx-proxy
+    restart: always
+    volumes:
+      - ./nginx-proxy/html/:/usr/share/nginx/html/
+      - ./nginx-proxy/nginx.conf:/etc/nginx/nginx.conf
+
+    ports:
+      - 8070:80
+    networks:
+     - webinternal
+     - webpublic
+
+networks:
+  webinternal:
+    #name: webinternal
+    driver: bridge
+    driver_opts: 
+      com.docker.network.driver.mtu: "9000"
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.112.0/24
+        gateway: 192.168.112.5
+        
+  webpublic:
+    #name: webpublic
+    driver: bridge
+    driver_opts: 
+      com.docker.network.enable_ipv4: "true"
+      com.docker.network.mtu: "1500"
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.111.0/24
+        gateway: 192.168.111.5
